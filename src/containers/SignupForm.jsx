@@ -88,8 +88,8 @@ const LoginForm = () => {
   return (
     <div className="m-auto flex flex-col gap-6 lg:w-[400px]">
       <Header
-        heading={'Log In'}
-        paragraph={'Enter your credentials to access you account'}
+        heading={'Sign Up'}
+        paragraph={'Enter your credentials to create an account'}
       />
       <Toaster />
       <form name="email" method="post" onSubmit={handleSubmit}>
@@ -145,7 +145,7 @@ const LoginForm = () => {
           type="submit"
           data-testid="submit"
         >
-          Log into Account
+          Sign Up
         </button>
       </form>
 
@@ -155,13 +155,13 @@ const LoginForm = () => {
         <hr className="flex-grow" />
       </div>
       <div className="gap-6">
-        <Button logo={Google} text={'Continue with Google'} />
-        <Button logo={Twitter} text={'Continue with Twitter'} />
+        <Button logo={Google} text={'Sign up with Google'} />
+        <Button logo={Twitter} text={'Sign up with Twitter'} />
       </div>
       <AccountSection
-        text={'Don’t have an account?'}
-        link={'Register'}
-        where={'/signup'}
+        text={'Already have an account?'}
+        link={'Login'}
+        where={'/'}
       />
     </div>
   );
