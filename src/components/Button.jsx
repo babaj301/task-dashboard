@@ -1,7 +1,8 @@
-const Button = ({ text, logo }) => {
+const Button = ({ onClick, text, logo }) => {
   return (
     <div>
       <button
+        onClick={onClick}
         className="w-full flex items-center justify-center gap-4 py-4 px-6 rounded-lg mb-6 border border-[#D0D5DD] font-semibold text-[#344054] text-base"
         type="submit"
       >

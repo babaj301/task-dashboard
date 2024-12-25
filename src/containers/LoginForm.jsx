@@ -10,6 +10,9 @@ import Twitter from '../assets/icons8-twitter.svg';
 import AccountSection from '../components/AccountSection';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { auth, googleProvider } from '../firebase';
+
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -58,33 +61,43 @@ const LoginForm = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (event) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    event.preventDefault();
-
-    if (email === '' || emailRegex.test(email) === false) {
-      toast(`Please input a valid email`);
+    if (!email || !password) {
+      toast.error('Please enter a valid email and password.');
       return;
     }
 
-    if (password === '') {
-      toast(`Please input a valid password`);
-      return;
-    }
-
-    if (emailRegex.test(email) && db.password !== '') {
-      setVerified(true);
-      db.email = email;
-      db.password = password;
-
-      console.log(db);
-
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      console.log('User Logged In:', user);
+      toast.success(`Welcome back, ${user.email}!`);
       navigate('/todoApp');
+    } catch (error) {
+      console.error('Login Error:', error.message);
+      toast.error('Login failed. Check your email or password.');
     }
-
-    console.log(db);
   };
+
+  const GoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      console.log('Google Login Success:', user);
+      toast.success(`Welcome ${user.displayName}!`);
+      navigate('/todoApp');
+    } catch (error) {
+      console.error('Google Login Error:', error.message);
+      toast.error('Failed to log in with Google.');
+    }
+  };
+
   return (
     <div className="m-auto flex flex-col gap-6 lg:w-[400px]">
       <Header
@@ -155,7 +168,11 @@ const LoginForm = () => {
         <hr className="flex-grow" />
       </div>
       <div className="gap-6">
-        <Button logo={Google} text={'Continue with Google'} />
+        <Button
+          onClick={GoogleLogin}
+          logo={Google}
+          text={'Continue with Google'}
+        />
         <Button logo={Twitter} text={'Continue with Twitter'} />
       </div>
       <AccountSection

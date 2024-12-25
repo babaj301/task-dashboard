@@ -10,6 +10,9 @@ import Twitter from '../assets/icons8-twitter.svg';
 import AccountSection from '../components/AccountSection';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { auth, googleProvider } from '../firebase';
+
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -58,7 +61,7 @@ const LoginForm = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     event.preventDefault();
@@ -79,12 +82,31 @@ const LoginForm = () => {
       db.password = password;
 
       console.log(db);
+    }
 
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      // Signed Up
+      const user = userCredential.user;
+      console.log(user);
+      toast.success(`Account created Successfully ${user.displayName}`);
       navigate('/todoApp');
+    } catch (error) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(errorCode, errorMessage);
+      toast.error(errorMessage);
     }
 
     console.log(db);
   };
+
+  // Adding a new user using FirebaseAuth
+
   return (
     <div className="m-auto flex flex-col gap-6 lg:w-[400px]">
       <Header
