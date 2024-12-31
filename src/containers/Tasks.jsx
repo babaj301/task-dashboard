@@ -12,7 +12,7 @@ const Tasks = () => {
     content: '',
     title: '',
     completed: false,
-    category: '',
+    category: 'work',
   });
 
   // Get all the tasks
@@ -155,6 +155,8 @@ const Tasks = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Priority
                   </label>
+
+                  {/* Select category */}
                   <select
                     name="category"
                     value={newTask.category}
