@@ -11,8 +11,7 @@ import AccountSection from '../components/AccountSection';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { auth, googleProvider } from '../firebase';
-
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -105,7 +104,22 @@ const LoginForm = () => {
     console.log(db);
   };
 
-  // Adding a new user using FirebaseAuth
+  // Google Signup
+
+  const GoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      console.log('Google Login Success:', user);
+      toast.success(`Welcome ${user.displayName}!`);
+      navigate('/todoApp');
+    } catch (error) {
+      console.error('Google Login Error:', error.message);
+      toast.error('Failed to log in with Google.');
+    }
+  };
+
+  // Adding a new user using Firebase
 
   return (
     <div className="m-auto flex flex-col gap-6 lg:w-[400px]">
@@ -177,7 +191,11 @@ const LoginForm = () => {
         <hr className="flex-grow" />
       </div>
       <div className="gap-6">
-        <Button logo={Google} text={'Sign up with Google'} />
+        <Button
+          onClick={GoogleLogin}
+          logo={Google}
+          text={'Sign up with Google'}
+        />
         <Button logo={Twitter} text={'Sign up with Twitter'} />
       </div>
       <AccountSection

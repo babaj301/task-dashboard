@@ -7,10 +7,18 @@ const TodoApp = () => {
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
+
+  const handleExit = () => {
+    console.log('exit');
+  };
   return (
     <div className="flex h-screen ">
       {/* Sidebar */}
-      <SideBar onTabChange={handleTabChange} selectedTab={selectedTab} />
+      <SideBar
+        onTabChange={handleTabChange}
+        handleExit={handleExit}
+        selectedTab={selectedTab}
+      />
       {/* Tasks Display */}
       <Tasks tab={selectedTab} />
     </div>

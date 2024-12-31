@@ -22,10 +22,6 @@ const LoginForm = () => {
   const [verified, setVerified] = useState(false);
   const navigate = useNavigate();
 
-  const db = {
-    email,
-    password,
-  };
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

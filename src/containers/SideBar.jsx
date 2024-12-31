@@ -1,10 +1,9 @@
 import React from 'react';
 import Logo from '../assets/Logo.svg';
 
-const SideBar = (onTabChange, selectedTab) => {
-  const handleExit = () => {};
+const SideBar = ({ onTabChange, handleExit, selectedTab }) => {
   return (
-    <div className="flex flex-col w-64 px-10 pt-10 border  bg-white">
+    <div className="flex flex-col min-w-60 px-10 pt-10 border  bg-white">
       {/* Logo section */}
       <div className="p-4 mb-16 ">
         <img className="w-40" src={Logo} alt="" />
@@ -18,7 +17,7 @@ const SideBar = (onTabChange, selectedTab) => {
             selectedTab === 'work'
               ? 'bg-[#2563DC] text-white'
               : 'bg-[#EEF2FC] text-[#14367B] '
-          } w-44 flex items-center justify-start gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base`}
+          } max-w-30 flex items-center justify-start gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base`}
         >
           <i
             className={
@@ -35,7 +34,7 @@ const SideBar = (onTabChange, selectedTab) => {
             selectedTab === 'personal'
               ? 'bg-[#2563DC] text-white'
               : 'bg-[#EEF2FC] text-[#14367B]'
-          } w-44 flex items-center justify-start gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base`}
+          } max-w-30 flex items-center justify-start gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base`}
         >
           <i
             className={
@@ -51,7 +50,7 @@ const SideBar = (onTabChange, selectedTab) => {
       {/* Exit button */}
       <button
         onClick={handleExit}
-        className="w-44 mt-auto flex items-center justify-center gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base hover:bg-[#FDF0EC] hover:text-black"
+        className="max-w-30 mt-auto flex items-center justify-center gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base hover:bg-[#FDF0EC] hover:text-black"
       >
         <i className="fa-solid fa-right-from-bracket"></i>
         <span> Exit</span>

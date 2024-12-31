@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 // Firebase Config Object
-
 const firebaseConfig = {
   apiKey: 'AIzaSyDCqoevjhtj3wHQSzsPQzcXyfSCZLz3VkI',
   authDomain: 'todo-project-301.firebaseapp.com',
@@ -16,4 +16,5 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
