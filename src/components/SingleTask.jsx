@@ -4,8 +4,8 @@ const SingleTask = ({ taskObj, onEdit, onDelete }) => {
   return (
     <div className=" flex flex-col rounded-lg border border-[#D0D5DD] p-4 gap-2 w-full ">
       <div className="flex items-center justify-between gap-4">
-        {/* Header */}
-        <h1 className="text-xl">{taskObj.user}</h1>
+        {/* Title */}
+        <h1 className="text-xl">{taskObj.title}</h1>
         <div className="flex gap-2">
           {/* Edit */}
           <button className="w-6 h-6" onClick={onEdit}>
@@ -18,7 +18,11 @@ const SingleTask = ({ taskObj, onEdit, onDelete }) => {
         </div>
       </div>
       {/* Content */}
-      <div className="text-sm text-[#667185] text-left">{taskObj.content}</div>
+      <div className="flex flex-col items-center">
+        <div className="text-sm text-[#667185] text-left">
+          {taskObj.content}
+        </div>
+      </div>
     </div>
   );
 };

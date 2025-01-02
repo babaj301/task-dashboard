@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
-import { db } from '../firebase';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
-import SingleTask from '../components/SingleTask';
-import { auth } from '../firebase';
+import { db, auth } from '../firebase';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
+import SingleTask from '../components/SingleTask';
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -15,19 +21,58 @@ const Tasks = () => {
     category: 'work',
   });
 
-  // Get all the tasks
-  useEffect(() => {
-    const getAllTasks = async () => {
-      try {
-        const data = await getDocs(collection(db, 'tasks'));
-        setTasks(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  // Find out who is logged in and Get all the tasks for that person
+  // useEffect(() => {
+  //   const fetchTasks = async () => {
+  //     const user = auth.currentUser;
+  //     if (user) {
+  //       try {
+  //         const userId = user.uid;
+  //         const taskRef = collection(db, 'users', userId, 'tasks');
+  //         const data = await getDocs(taskRef);
 
-    getAllTasks();
+  //         setTasks(
+  //           data.docs.map((doc) => ({
+  //             ...doc.data(),
+  //             id: doc.id,
+  //           }))
+  //         );
+  //       } catch (error) {
+  //         console.error('Error fetching tasks: ', error);
+  //       }
+  //     } else {
+  //       console.log('No user logged in');
+  //     }
+  //   };
+
+  //   fetchTasks();
+  // }, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userId = user.uid;
+          const taskRef = collection(db, 'users', userId, 'tasks');
+          const data = await getDocs(taskRef);
+
+          setTasks(
+            data.docs.map((doc) => ({
+              ...doc.data(),
+              id: doc.id,
+            }))
+          );
+        } catch (error) {
+          console.error('Error fetching tasks: ', error);
+        }
+      } else {
+        console.log('No user logged in');
+        setTasks([]);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
+
   // Show tasks
   console.log(tasks);
 
@@ -37,6 +82,11 @@ const Tasks = () => {
     console.log(searchText);
   };
 
+  // Filter tasks to use in search
+  // const filteredTasks = tasks.filter((task) => {
+  //   return task.title.toLowerCase().includes(searchText);
+  // });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewTask((prev) => ({ ...prev, [name]: value }));
@@ -44,28 +94,51 @@ const Tasks = () => {
 
   const addTask = async (e) => {
     e.preventDefault();
-    try {
-      const taskData = {
-        user: auth.currentUser.displayName,
-        content: newTask.content,
-        title: newTask.title,
-        completed: false,
-        category: newTask.category,
-      };
+    const user = auth.currentUser;
 
-      const docRef = await addDoc(collection(db, 'tasks'), taskData);
-      setTasks((prev) => [...prev, { id: docRef.id, ...taskData }]);
+    if (user) {
+      try {
+        const userId = user.uid;
+        const taskData = {
+          name: user.displayName,
+          content: newTask.content,
+          title: newTask.title,
+          completed: false,
+          category: newTask.category,
+        };
 
-      setNewTask({
-        content: '',
-        completed: false,
-        category: '',
-      });
+        const docRef = await addDoc(
+          collection(db, 'users', userId, 'tasks'),
+          taskData
+        );
 
-      setIsAddModalOpen(false);
-    } catch (error) {
-      console.log(error);
-      console.error('Error adding task: ', error);
+        setTasks((prev) => [...prev, { id: docRef.id, ...taskData }]);
+        setNewTask({
+          content: '',
+          title: '',
+          completed: false,
+          category: 'work',
+        });
+
+        setIsAddModalOpen(false);
+      } catch (error) {
+        console.error('Error adding task: ', error);
+      }
+    } else {
+      console.log('No user logged in');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+        await deleteDoc(taskRef);
+        setTasks(tasks.filter((task) => task.id !== id));
+      } catch (error) {
+        console.error('Error deleting task: ', error);
+      }
     }
   };
 
@@ -86,7 +159,7 @@ const Tasks = () => {
 
         {/* Profile */}
         <div className="flex gap-4 items-center">
-          <p>Oluwaferanmi</p>
+          <p>{auth.currentUser.displayName}</p>
           <img
             className="w-10 h-10 rounded-full"
             src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
@@ -152,10 +225,6 @@ const Tasks = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Priority
-                  </label>
-
                   {/* Select category */}
                   <select
                     name="category"
@@ -190,16 +259,26 @@ const Tasks = () => {
       </div>
 
       {/* Tasks list */}
-      <div className="p-5 gap-9 grid grid-cols-3 ">
-        {tasks.map((task) => (
-          <SingleTask
-            key={task.id}
-            taskObj={task}
-            onEdit={() => console.log('edit', task.id)}
-            onDelete={() => console.log('delete', task.id)}
-          />
-        ))}
-      </div>
+      {tasks.length === 0 ? (
+        <div className="flex justify-center items-center h-full">
+          <p className="text-2xl font-semibold text-[#101928]">
+            You have no tasks
+          </p>
+        </div>
+      ) : (
+        <div className="p-5 gap-9 grid grid-cols-3 ">
+          {tasks.map((task) => (
+            <SingleTask
+              key={task.id}
+              taskObj={task}
+              onEdit={() => console.log('edit', task.id)}
+              onDelete={() => {
+                handleDelete(task.id);
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

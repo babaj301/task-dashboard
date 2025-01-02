@@ -17,7 +17,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [eye, setEye] = useState(true);
+  const [isEyeOpen, setIsEyeOpen] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [verified, setVerified] = useState(false);
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const LoginForm = () => {
   };
 
   const changeEye = () => {
-    setEye(!eye);
+    setIsEyeOpen(!isEyeOpen);
     setShowPassword(!showPassword);
   };
 
@@ -142,7 +142,7 @@ const LoginForm = () => {
               className="absolute ml-2 right-6"
               type="button"
             >
-              <img className="slash" src={eye ? SlashIcon : Eye} alt="" />
+              <img className="slash" src={isEyeOpen ? SlashIcon : Eye} alt="" />
             </button>
           </div>
         </div>
