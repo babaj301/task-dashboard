@@ -270,11 +270,12 @@ const Tasks = () => {
           {tasks.map((task) => (
             <SingleTask
               key={task.id}
-              taskObj={task}
+              task={task}
               onEdit={() => console.log('edit', task.id)}
               onDelete={() => {
                 handleDelete(task.id);
               }}
+              onComplete={() => handleDelete(task.id)}
             />
           ))}
         </div>
