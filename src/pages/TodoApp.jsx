@@ -27,13 +27,25 @@ const TodoApp = () => {
 
   const handleExit = () => console.log('exit');
 
+  // Use effect to get the data and handle how to display it depending on what tab it is
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    // Function is responsible for listening for changes and stops running when the component unmounts
+    const handleStateListener = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const userId = user.uid;
           const taskRef = collection(db, 'users', userId, 'tasks');
           const data = await getDocs(taskRef);
+
+          if (selectedTab === 'all') {
+            const tasks = data.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setTasks(tasks);
+          }
+
+          // Sets the tasks for work
           if (selectedTab === 'work') {
             const tasks = data.docs.map((doc) => ({
               id: doc.id,
@@ -45,6 +57,7 @@ const TodoApp = () => {
             setTasks(workTasks);
           }
 
+          //Set the tasks for personal
           if (selectedTab === 'personal') {
             const tasks = data.docs.map((doc) => ({
               id: doc.id,
@@ -64,7 +77,7 @@ const TodoApp = () => {
       }
     });
 
-    return () => unsubscribe();
+    return () => handleStateListener();
   }, [selectedTab]);
 
   const handleSearch = (e) => {

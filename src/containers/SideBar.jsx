@@ -11,6 +11,24 @@ const SideBar = ({ onTabChange, handleExit, selectedTab }) => {
 
       {/* Grouped Buttons */}
       <div className="flex flex-col ">
+        {/* All Tasks Button */}
+        <button
+          onClick={() => onTabChange('all')}
+          className={`${
+            selectedTab === 'all'
+              ? 'bg-[#2563DC] text-white'
+              : 'bg-[#EEF2FC] text-[#14367B] '
+          } max-w-30 flex items-center justify-start gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base`}
+        >
+          <i
+            className={
+              selectedTab === 'all'
+                ? 'fa-solid fa-folder'
+                : 'fa-regular fa-folder'
+            }
+          ></i>
+          <span> All</span>
+        </button>
         <button
           onClick={() => onTabChange('work')}
           className={`${

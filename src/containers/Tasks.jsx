@@ -11,6 +11,7 @@ const Tasks = ({
   handleDelete,
 }) => {
   const handleInputChange = (e) => {
+    // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
     const { name, value } = e.target;
     setNewTask((prev) => ({ ...prev, [name]: value }));
   };
