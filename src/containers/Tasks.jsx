@@ -11,6 +11,14 @@ const Tasks = ({
   onSearchChange,
   handleDelete,
   loading,
+  saveEdit,
+  cancelEdit,
+  setNewTaskTitle,
+  setNewTaskContent,
+  editingTaskId,
+  newTaskTitle,
+  newTaskContent,
+  handleEditClick,
 }) => {
   const handleInputChange = (e) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
@@ -144,17 +152,56 @@ const Tasks = ({
           </p>
         </div>
       ) : (
-        <div className="p-5 gap-4 lg:grid lg:grid-cols-4 md:flex md:flex-col sm:grid sm:grid-cols-2 items-center   ">
+        <div className="p-5 gap-4 lg:grid lg:grid-cols-4 md:flex md:grid md:grid-cols-1 sm:grid sm:grid-cols-2 items-center   ">
           {tasks.map((task) => (
-            <SingleTask
-              key={task.id}
-              task={task}
-              onEdit={() => console.log('edit', task.id)}
-              onDelete={() => {
-                handleDelete(task.id);
-              }}
-              onComplete={() => handleDelete(task.id)}
-            />
+            <div>
+              {editingTaskId === task.id ? (
+                <div className="flex flex-col">
+                  <label className="block text-lg font-medium text-gray-700 mb-1">
+                    Title
+                  </label>
+                  <input
+                    className="w-[60%] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="text"
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                  />
+                  <label className="block text-lg font-medium text-gray-700 mb-1">
+                    Content
+                  </label>
+                  <input
+                    className="w-[60%] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="text"
+                    value={newTaskContent}
+                    onChange={(e) => setNewTaskContent(e.target.value)}
+                  />
+                  <div className="flex justify-between w-[60%] mt-3">
+                    <button
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md bg-[#2563DC] text-white hover:bg-[#14367B]"
+                      onClick={saveEdit}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                      onClick={cancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <SingleTask
+                  key={task.id}
+                  task={task}
+                  onEdit={() => handleEditClick(task)}
+                  onDelete={() => {
+                    handleDelete(task.id);
+                  }}
+                  onComplete={() => handleDelete(task.id)}
+                />
+              )}
+            </div>
           ))}
         </div>
       )}

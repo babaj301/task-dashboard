@@ -5,6 +5,7 @@ import {
   collection,
   getDocs,
   deleteDoc,
+  updateDoc,
   doc,
 } from 'firebase/firestore';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -24,6 +25,10 @@ const TodoApp = () => {
     completed: false,
     category: 'work',
   });
+
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskContent, setNewTaskContent] = useState('');
 
   const navigate = useNavigate();
 
@@ -157,6 +162,44 @@ const TodoApp = () => {
     }
   };
 
+  const handleEditClick = (task) => {
+    setEditingTaskId(task.id);
+    setNewTaskTitle(task.title);
+    setNewTaskContent(task.content);
+  };
+
+  const handleEditSave = async () => {
+    const user = auth.currentUser;
+
+    const id = editingTaskId;
+
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'tasks', id), {
+        title: newTaskTitle,
+        content: newTaskContent,
+      });
+
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === editingTaskId
+            ? { ...task, title: newTaskTitle, content: newTaskContent }
+            : task
+        )
+      );
+      setEditingTaskId(null);
+      setNewTaskTitle('');
+      setNewTaskContent('');
+    } catch (error) {
+      console.error('Error updating task: ', error);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingTaskId(null);
+    setNewTaskContent('');
+    setNewTaskTitle('');
+  };
+
   return (
     <div className="flex h-screen">
       <SideBar
@@ -175,6 +218,14 @@ const TodoApp = () => {
         addTask={addTask}
         handleDelete={handleDelete}
         loading={loading}
+        saveEdit={handleEditSave}
+        cancelEdit={cancelEdit}
+        setNewTaskTitle={setNewTaskTitle}
+        setNewTaskContent={setNewTaskContent}
+        editingTaskId={editingTaskId}
+        newTaskTitle={newTaskTitle}
+        newTaskContent={newTaskContent}
+        handleEditClick={handleEditClick}
       />
     </div>
   );
