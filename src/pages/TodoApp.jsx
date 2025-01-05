@@ -12,9 +12,10 @@ import SideBar from '../containers/SideBar';
 import Tasks from '../containers/Tasks';
 
 const TodoApp = () => {
-  const [selectedTab, setSelectedTab] = useState('work');
+  const [selectedTab, setSelectedTab] = useState('all');
   const [tasks, setTasks] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTask, setNewTask] = useState({
     content: '',
@@ -27,9 +28,8 @@ const TodoApp = () => {
 
   const handleExit = () => console.log('exit');
 
-  // Use effect to get the data and handle how to display it depending on what tab it is
   useEffect(() => {
-    // Function is responsible for listening for changes and stops running when the component unmounts
+    // Function to listen for changes and stops running when the component unmounts
     const handleStateListener = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
@@ -68,6 +68,8 @@ const TodoApp = () => {
             );
             setTasks(personalTasks);
           }
+
+          setLoading(false);
         } catch (error) {
           console.error('Error fetching tasks: ', error);
         }
@@ -80,9 +82,16 @@ const TodoApp = () => {
     return () => handleStateListener();
   }, [selectedTab]);
 
-  const handleSearch = (e) => {
-    const searchQuery = e.target.value.toLowerCase();
+  const searchInput = (e) => {
+    const searchQuery = e.target.value;
     setSearchText(searchQuery);
+
+    console.log(searchQuery);
+    setSearchText('');
+  };
+
+  const handleSearch = () => {
+    console.log(searchText);
   };
 
   const addTask = async (e) => {
@@ -144,6 +153,7 @@ const TodoApp = () => {
       />
       <Tasks
         tasks={tasks}
+        onSearchChange={searchInput}
         handleSearch={handleSearch}
         isAddModalOpen={isAddModalOpen}
         setIsAddModalOpen={setIsAddModalOpen}
@@ -151,6 +161,7 @@ const TodoApp = () => {
         setNewTask={setNewTask}
         addTask={addTask}
         handleDelete={handleDelete}
+        loading={loading}
       />
     </div>
   );

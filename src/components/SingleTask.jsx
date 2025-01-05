@@ -10,7 +10,7 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
     }
   };
   return (
-    <div className=" flex flex-col rounded-lg border border-[#D0D5DD] p-4 gap-2 w-full ">
+    <div className=" flex flex-col justify-evenly text-left rounded-lg border border-[#D0D5DD] p-4 gap-4 w-full ">
       <div className="flex items-center justify-between gap-4">
         {/* Title */}
         <h1 className="text-xl">{task.title}</h1>
@@ -26,12 +26,11 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
         </div>
       </div>
       {/* Content */}
-      <div className="flex flex-col items-center">
-        <div className="text-sm text-[#667185] text-left">{task.content}</div>
+      <div className="flex flex-col justify-center">
+        <p className="text-sm text-[#667185]">{task.content}</p>
       </div>
 
       {/* Completed */}
-      <div className="flex items-center justify-between gap-4"></div>
       <div className="flex items-center gap-2">
         <input
           type="checkbox"

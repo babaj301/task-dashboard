@@ -8,7 +8,9 @@ const Tasks = ({
   newTask,
   setNewTask,
   addTask,
+  onSearchChange,
   handleDelete,
+  loading,
 }) => {
   const handleInputChange = (e) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
@@ -21,12 +23,14 @@ const Tasks = ({
       <div className="flex gap-12 justify-between px-16 py-5 border-b w-full border-grey-200 text-base">
         <div className="flex min-w-[30%] max-w-[60%] px-4 rounded-md items-center border border-[#D0D5DD]">
           <input
-            onChange={handleSearch}
+            onChange={onSearchChange}
             className="w-full outline-none border-none border-[#D0D5DD] py-2 px-4"
             type="text"
             placeholder="Search"
           />
-          <i className="fa-solid fa-magnifying-glass"></i>
+          <button onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
         <div className="flex gap-4 items-center">
           <p>{auth.currentUser?.displayName}</p>
@@ -124,15 +128,23 @@ const Tasks = ({
           </div>
         </div>
       )}
-      {/* Tasks list */}
-      {tasks.length === 0 ? (
+      {/* Tasks Section */}
+
+      {/* Nested Ternary to handle the conditional rendering of the tasks section */}
+      {loading ? (
+        // Show spinner while loading
+        <div className="flex flex-col justify-center items-center col-span-3 h-full">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+          <div>Loading tasks</div>
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="flex justify-center items-center h-full">
           <p className="text-2xl font-semibold text-[#101928]">
             You have no tasks
           </p>
         </div>
       ) : (
-        <div className="p-5 gap-9 grid grid-cols-3 ">
+        <div className="p-5 gap-2 grid grid-cols-3 ">
           {tasks.map((task) => (
             <SingleTask
               key={task.id}
