@@ -33,7 +33,7 @@ const Tasks = ({
           </button>
         </div>
         <div className="flex gap-4 items-center">
-          <p>{auth.currentUser?.displayName}</p>
+          <p>{`Hi, ${auth.currentUser?.displayName.split(' ')[0]} `}</p>
           <img
             className="w-10 h-10 rounded-full"
             src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2"
@@ -144,7 +144,7 @@ const Tasks = ({
           </p>
         </div>
       ) : (
-        <div className="p-5 gap-2 flex flex-col items-center ">
+        <div className="p-5 gap-4 lg:grid lg:grid-cols-4 md:flex md:flex-col sm:grid sm:grid-cols-2 items-center   ">
           {tasks.map((task) => (
             <SingleTask
               key={task.id}

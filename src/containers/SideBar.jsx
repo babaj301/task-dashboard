@@ -3,7 +3,7 @@ import Logo from '../assets/Logo.svg';
 
 const SideBar = ({ onTabChange, handleLogout, selectedTab }) => {
   return (
-    <div className="flex flex-col min-w-60 px-10 pt-10 border  bg-white">
+    <div className="flex flex-col min-w-60  min-h-screen px-10 pt-10 border bg-white">
       {/* Logo section */}
       <div className="p-4 mb-16 ">
         <img className="w-40" src={Logo} alt="" />
