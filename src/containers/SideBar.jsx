@@ -1,7 +1,7 @@
 import React from 'react';
 import Logo from '../assets/Logo.svg';
 
-const SideBar = ({ onTabChange, handleExit, selectedTab }) => {
+const SideBar = ({ onTabChange, handleLogout, selectedTab }) => {
   return (
     <div className="flex flex-col min-w-60 px-10 pt-10 border  bg-white">
       {/* Logo section */}
@@ -67,11 +67,11 @@ const SideBar = ({ onTabChange, handleExit, selectedTab }) => {
 
       {/* Exit button */}
       <button
-        onClick={handleExit}
-        className="max-w-30 mt-auto flex items-center justify-center gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base hover:bg-[#FDF0EC] hover:text-black"
+        onClick={handleLogout}
+        className="max-w-30 mt-auto flex items-center justify-center gap-4 py-2 px-7 rounded-md  mb-6 border border-[#D0D5DD] font-semibold text-base hover:bg-rose-500 hover:text-white"
       >
         <i className="fa-solid fa-right-from-bracket"></i>
-        <span> Exit</span>
+        <span> Log Out</span>
       </button>
     </div>
   );

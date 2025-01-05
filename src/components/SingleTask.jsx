@@ -13,7 +13,7 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
     <div className=" flex flex-col justify-evenly text-left rounded-lg shadow-md border border-[#2563DC] p-4 gap-4 w-[85%] ">
       <div className="flex items-center justify-between gap-4">
         {/* Title */}
-        <h1 className="text-xl">{task.title}</h1>
+        <h1 className="text-xl text-[#14367B]">{task.title}</h1>
         <div className="flex gap-2">
           {/* Edit */}
           <button className="w-6 h-6" onClick={onEdit}>
@@ -27,7 +27,7 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
       </div>
       {/* Content */}
       <div className="flex flex-col justify-center">
-        <p className="text-sm text-[#667185]">{task.content}</p>
+        <p className="text-sm text-[#000]">{task.content}</p>
       </div>
 
       {/* Completed */}
@@ -41,7 +41,7 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
           className="appearance-none h-5 w-5 shadow-md rounded-md checked:bg-[#2563DC] border border-[#D0D5DD]"
         ></input>
 
-        <p className="font-medium text-sm text-[#101928]">Completed</p>
+        <p className="font-medium text-sm text-[#14367B]">Completed</p>
       </div>
     </div>
   );

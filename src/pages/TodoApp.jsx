@@ -7,9 +7,10 @@ import {
   deleteDoc,
   doc,
 } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import SideBar from '../containers/SideBar';
 import Tasks from '../containers/Tasks';
+import { useNavigate } from 'react-router-dom';
 
 const TodoApp = () => {
   const [selectedTab, setSelectedTab] = useState('all');
@@ -24,9 +25,21 @@ const TodoApp = () => {
     category: 'work',
   });
 
+  const navigate = useNavigate();
+
   const handleTabChange = (tab) => setSelectedTab(tab);
 
-  const handleExit = () => console.log('exit');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      console.log('User succesfully logged out');
+    } catch (error) {
+      console.log('Error logging out:', error);
+    }
+  };
 
   useEffect(() => {
     // Function to listen for changes and stops running when the component unmounts
@@ -148,7 +161,7 @@ const TodoApp = () => {
     <div className="flex h-screen">
       <SideBar
         onTabChange={handleTabChange}
-        handleExit={handleExit}
+        handleLogout={handleLogout}
         selectedTab={selectedTab}
       />
       <Tasks
