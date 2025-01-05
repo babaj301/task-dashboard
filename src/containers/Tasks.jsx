@@ -144,7 +144,7 @@ const Tasks = ({
           </p>
         </div>
       ) : (
-        <div className="p-5 gap-2 grid grid-cols-3 ">
+        <div className="p-5 gap-2 flex flex-col items-center ">
           {tasks.map((task) => (
             <SingleTask
               key={task.id}

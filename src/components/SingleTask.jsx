@@ -10,7 +10,7 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
     }
   };
   return (
-    <div className=" flex flex-col justify-evenly text-left rounded-lg border border-[#D0D5DD] p-4 gap-4 w-full ">
+    <div className=" flex flex-col justify-evenly text-left rounded-lg shadow-md border border-[#2563DC] p-4 gap-4 w-[85%] ">
       <div className="flex items-center justify-between gap-4">
         {/* Title */}
         <h1 className="text-xl">{task.title}</h1>
@@ -38,7 +38,7 @@ const SingleTask = ({ task, onEdit, onDelete, onComplete }) => {
           checked={isChecked}
           onChange={handleChange}
           id="completed"
-          className="appearance-none h-5 w-5 rounded-md checked:bg-[#2563DC] border border-[#D0D5DD]"
+          className="appearance-none h-5 w-5 shadow-md rounded-md checked:bg-[#2563DC] border border-[#D0D5DD]"
         ></input>
 
         <p className="font-medium text-sm text-[#101928]">Completed</p>
