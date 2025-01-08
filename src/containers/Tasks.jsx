@@ -1,3 +1,4 @@
+import CompletedTask from '../components/CompletedTask';
 import SingleTask from '../components/SingleTask';
 import { auth } from '../firebase';
 const Tasks = ({
@@ -9,7 +10,11 @@ const Tasks = ({
   setNewTask,
   addTask,
   onSearchChange,
+  isDeleteModalOpen,
   handleDelete,
+  handleDeleteClick,
+  cancelDelete,
+  deletingTaskId,
   loading,
   saveEdit,
   cancelEdit,
@@ -19,6 +24,10 @@ const Tasks = ({
   newTaskTitle,
   newTaskContent,
   handleEditClick,
+  handleComplete,
+  revertComplete,
+  completedTasks,
+  setIsDeleteModalOpen,
 }) => {
   const handleInputChange = (e) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
@@ -27,6 +36,8 @@ const Tasks = ({
   };
 
   return (
+    // Uncompleted tasks
+
     <div className="flex flex-col h-screen w-full">
       <div className="flex gap-12 justify-between px-16 py-5 border-b w-full border-grey-200 text-base">
         <div className="flex min-w-[30%] max-w-[60%] px-4 rounded-md items-center border border-[#D0D5DD]">
@@ -41,7 +52,11 @@ const Tasks = ({
           </button>
         </div>
         <div className="flex gap-4 items-center">
-          <p>{`Hi, ${auth.currentUser?.displayName.split(' ')[0]} `}</p>
+          <p>
+            {auth.currentUser
+              ? `Hi, ${auth.currentUser?.displayName.split(' ')[0]} `
+              : 'Hi, User'}
+          </p>
           <img
             className="w-10 h-10 rounded-full"
             src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2"
@@ -50,7 +65,7 @@ const Tasks = ({
         </div>
       </div>
 
-      <div className="flex px-16 pt-28 justify-between">
+      <div className="flex px-16 pt-28  justify-between">
         <p className="text-2xl font-medium text-[#101928]">Tasks</p>
         <button
           onClick={() => setIsAddModalOpen(true)}
@@ -137,6 +152,7 @@ const Tasks = ({
         </div>
       )}
       {/* Tasks Section */}
+      {/* <Tasks tasks={tasks} handleDelete={handleDelete} /> */}
 
       {/* Nested Ternary to handle the conditional rendering of the tasks section */}
       {loading ? (
@@ -154,7 +170,7 @@ const Tasks = ({
       ) : (
         <div className="p-5 gap-4 lg:grid lg:grid-cols-4 md:flex md:grid md:grid-cols-1 sm:grid sm:grid-cols-2 items-center   ">
           {tasks.map((task) => (
-            <div>
+            <div key={task.id}>
               {editingTaskId === task.id ? (
                 <div className="flex flex-col">
                   <label className="block text-lg font-medium text-gray-700 mb-1">
@@ -190,21 +206,80 @@ const Tasks = ({
                     </button>
                   </div>
                 </div>
-              ) : (
+              ) : isDeleteModalOpen && deletingTaskId === task.id ? (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex  items-center justify-center z-50">
+                  <div className="bg-white rounded-lg flex flex-col p-6 w-full max-w-xs mx-4">
+                    <div className="gap-4">
+                      <div className="flex justify-between mb-2 items-center text-lg font-semibold ">
+                        <h2 className="">Deleting Task </h2>
+                        <button
+                          onClick={() => {
+                            setIsDeleteModalOpen(false);
+                          }}
+                        >
+                          x
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-2 items-end">
+                        <h1 className="text-base text-grey">
+                          Are you sure you want to delete "{task.title}"
+                        </h1>
+
+                        <div className="flex gap-4">
+                          <button
+                            onClick={cancelDelete}
+                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-rose-500"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleDelete}
+                            className="px-4 py-2 border border-gray-300 text-white rounded-md  bg-rose-500"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : task.completed ? null : (
                 <SingleTask
                   key={task.id}
                   task={task}
                   onEdit={() => handleEditClick(task)}
-                  onDelete={() => {
-                    handleDelete(task.id);
-                  }}
-                  onComplete={() => handleDelete(task.id)}
+                  onDelete={() => handleDeleteClick(task)}
+                  onComplete={() => handleComplete(task.id)}
                 />
               )}
             </div>
           ))}
         </div>
       )}
+      <div className="p-5 gap-4 lg:grid lg:grid-cols-4 md:grid md:grid-cols-1 sm:grid sm:grid-cols-2 items-center  ">
+        <div>
+          <p>Completed</p>
+          <div>
+            {completedTasks
+              ? completedTasks.map((task) => {
+                  return (
+                    <CompletedTask
+                      onComplete={() => {
+                        handleComplete(task.id);
+                      }}
+                      revertComplete={() => {
+                        revertComplete(task.id);
+                      }}
+                      key={task.id}
+                      task={task}
+                    />
+                  );
+                })
+              : 'No tasks completed'}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

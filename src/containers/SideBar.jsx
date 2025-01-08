@@ -22,9 +22,7 @@ const SideBar = ({ onTabChange, handleLogout, selectedTab }) => {
         >
           <i
             className={
-              selectedTab === 'all'
-                ? 'fa-solid fa-folder'
-                : 'fa-regular fa-folder'
+              selectedTab === 'all' ? 'fa-solid fa-bars' : 'fa-regular fa-bars'
             }
           ></i>
           <span> All</span>

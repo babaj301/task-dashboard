@@ -13,6 +13,7 @@ import SideBar from '../containers/SideBar';
 import Tasks from '../containers/Tasks';
 import { useNavigate } from 'react-router-dom';
 
+// All the states
 const TodoApp = () => {
   const [selectedTab, setSelectedTab] = useState('all');
   const [tasks, setTasks] = useState([]);
@@ -30,6 +31,9 @@ const TodoApp = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskContent, setNewTaskContent] = useState('');
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingTaskId, setDeletingTaskId] = useState(null);
+
   const navigate = useNavigate();
 
   const handleTabChange = (tab) => setSelectedTab(tab);
@@ -46,55 +50,101 @@ const TodoApp = () => {
     }
   };
 
+  const fetchTasks = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const userId = user.uid;
+        const taskRef = collection(db, 'users', userId, 'tasks');
+        const data = await getDocs(taskRef);
+
+        if (selectedTab === 'all') {
+          const tasks = data.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setTasks(tasks);
+        }
+
+        // Sets the tasks for work
+        if (selectedTab === 'work') {
+          const tasks = data.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          const workTasks = tasks.filter((task) => task.category === 'work');
+
+          workTasks ? setTasks(workTasks) : setTasks([]);
+        }
+
+        //Set the tasks for personal
+        if (selectedTab === 'personal') {
+          const tasks = data.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          const personalTasks = tasks.filter(
+            (task) => task.category === 'personal'
+          );
+          personalTasks ? setTasks(personalTasks) : setTasks([]);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tasks: ', error);
+      }
+    } else {
+      console.log('No user logged in');
+      setTasks([]);
+    }
+  };
+
   useEffect(() => {
     // Function to listen for changes and stops running when the component unmounts
     const handleStateListener = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const userId = user.uid;
-          const taskRef = collection(db, 'users', userId, 'tasks');
-          const data = await getDocs(taskRef);
+      // if (user) {
+      //   try {
+      //     const userId = user.uid;
+      //     const taskRef = collection(db, 'users', userId, 'tasks');
+      //     const data = await getDocs(taskRef);
+      //     if (selectedTab === 'all') {
+      //       const tasks = data.docs.map((doc) => ({
+      //         id: doc.id,
+      //         ...doc.data(),
+      //       }));
+      //       setTasks(tasks);
+      //     }
+      //     // Sets the tasks for work
+      //     if (selectedTab === 'work') {
+      //       const tasks = data.docs.map((doc) => ({
+      //         id: doc.id,
+      //         ...doc.data(),
+      //       }));
+      //       const workTasks = tasks.filter((task) => task.category === 'work');
+      //       setTasks(workTasks);
+      //     }
+      //     //Set the tasks for personal
+      //     if (selectedTab === 'personal') {
+      //       const tasks = data.docs.map((doc) => ({
+      //         id: doc.id,
+      //         ...doc.data(),
+      //       }));
+      //       const personalTasks = tasks.filter(
+      //         (task) => task.category === 'personal'
+      //       );
+      //       setTasks(personalTasks);
+      //     }
+      //     setLoading(false);
+      //   } catch (error) {
+      //     console.error('Error fetching tasks: ', error);
+      //   }
+      // } else {
+      //   console.log('No user logged in');
+      //   setTasks([]);
+      // }
 
-          if (selectedTab === 'all') {
-            const tasks = data.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-            setTasks(tasks);
-          }
-
-          // Sets the tasks for work
-          if (selectedTab === 'work') {
-            const tasks = data.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-
-            const workTasks = tasks.filter((task) => task.category === 'work');
-
-            setTasks(workTasks);
-          }
-
-          //Set the tasks for personal
-          if (selectedTab === 'personal') {
-            const tasks = data.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-            const personalTasks = tasks.filter(
-              (task) => task.category === 'personal'
-            );
-            setTasks(personalTasks);
-          }
-
-          setLoading(false);
-        } catch (error) {
-          console.error('Error fetching tasks: ', error);
-        }
-      } else {
-        console.log('No user logged in');
-        setTasks([]);
-      }
+      fetchTasks();
     });
 
     return () => handleStateListener();
@@ -108,10 +158,9 @@ const TodoApp = () => {
     setSearchText('');
   };
 
-  const handleSearch = () => {
-    console.log(searchText);
-  };
+  const handleSearch = () => {};
 
+  // Adds a new task
   const addTask = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
@@ -149,25 +198,42 @@ const TodoApp = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  // Deletes the task
+  const handleDeleteClick = (task) => {
+    setIsDeleteModalOpen(true);
+    setDeletingTaskId(task.id);
+  };
+  const handleDelete = async () => {
     const user = auth.currentUser;
+    const id = deletingTaskId;
     if (user) {
       try {
         const taskRef = doc(db, 'users', user.uid, 'tasks', id);
         await deleteDoc(taskRef);
-        setTasks(tasks.filter((task) => task.id !== id));
+        // setTasks(tasks.filter((task) => task.id !== id));
+        fetchTasks();
       } catch (error) {
         console.error('Error deleting task: ', error);
+      } finally {
+        setIsDeleteModalOpen(false);
+        setDeletingTaskId(null);
       }
     }
   };
 
+  const cancelDelete = () => {
+    setDeletingTaskId(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  // Handles what becomes the content of the edited task
   const handleEditClick = (task) => {
     setEditingTaskId(task.id);
     setNewTaskTitle(task.title);
     setNewTaskContent(task.content);
   };
 
+  // Save the edited task
   const handleEditSave = async () => {
     const user = auth.currentUser;
 
@@ -194,11 +260,42 @@ const TodoApp = () => {
     }
   };
 
+  // Cancel the edit
   const cancelEdit = () => {
     setEditingTaskId(null);
     setNewTaskContent('');
     setNewTaskTitle('');
   };
+
+  // Completes the task
+  const handleComplete = async (id) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+        await updateDoc(taskRef, { completed: true });
+        await fetchTasks();
+      } catch (error) {
+        console.error('Error editing task: ', error);
+      }
+    }
+  };
+  // Returns the tasks to incomplete
+  const revertComplete = async (id) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+        await updateDoc(taskRef, { completed: false });
+        await fetchTasks();
+      } catch (error) {
+        console.error('Error editing task: ', error);
+      }
+    }
+  };
+
+  // Filtered tasks for completed
+  const completedTasks = tasks.filter((task) => task.completed);
 
   return (
     <div className="flex h-screen">
@@ -216,7 +313,10 @@ const TodoApp = () => {
         newTask={newTask}
         setNewTask={setNewTask}
         addTask={addTask}
+        isDeleteModalOpen={isDeleteModalOpen}
+        handleDeleteClick={handleDeleteClick}
         handleDelete={handleDelete}
+        cancelDelete={cancelDelete}
         loading={loading}
         saveEdit={handleEditSave}
         cancelEdit={cancelEdit}
@@ -226,6 +326,11 @@ const TodoApp = () => {
         newTaskTitle={newTaskTitle}
         newTaskContent={newTaskContent}
         handleEditClick={handleEditClick}
+        handleComplete={handleComplete}
+        revertComplete={revertComplete}
+        completedTasks={completedTasks}
+        deletingTaskId={deletingTaskId}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
       />
     </div>
   );
