@@ -35,6 +35,8 @@ const Tasks = ({
     setNewTask((prev) => ({ ...prev, [name]: value }));
   };
 
+  console.log(auth.currentUser);
+
   return (
     // Uncompleted tasks
 
@@ -53,9 +55,9 @@ const Tasks = ({
         </div>
         <div className="flex gap-4 items-center">
           <p>
-            {auth.currentUser
-              ? `Hi, ${auth.currentUser?.displayName.split(' ')[0]} `
-              : 'Hi, User'}
+            {auth.currentUser && auth.currentUser.displayName
+              ? `Hi, ${auth.currentUser.displayName.split(' ')[0]} `
+              : `${auth.currentUser.email.split('.')[0]}`}
           </p>
           <img
             className="w-10 h-10 rounded-full"

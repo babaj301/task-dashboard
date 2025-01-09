@@ -21,10 +21,6 @@ const LoginForm = () => {
   const [verified, setVerified] = useState(false);
   const navigate = useNavigate();
 
-  const db = {
-    email,
-    password,
-  };
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,14 +71,6 @@ const LoginForm = () => {
       return;
     }
 
-    if (emailRegex.test(email) && db.password !== '') {
-      setVerified(true);
-      db.email = email;
-      db.password = password;
-
-      console.log(db);
-    }
-
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -100,8 +88,6 @@ const LoginForm = () => {
       console.log(errorCode, errorMessage);
       toast.error(errorMessage);
     }
-
-    console.log(db);
   };
 
   // Google Signup
