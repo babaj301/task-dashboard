@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 const TodoApp = () => {
   const [selectedTab, setSelectedTab] = useState('all');
   const [tasks, setTasks] = useState([]);
-  const [searchText, setSearchText] = useState('');
+  // const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -148,14 +148,14 @@ const TodoApp = () => {
     });
 
     return () => handleStateListener();
-  }, [selectedTab]);
+  }, [selectedTab, fetchTasks]);
 
   const searchInput = (e) => {
     const searchQuery = e.target.value;
-    setSearchText(searchQuery);
+    // setSearchText(searchQuery);
 
     console.log(searchQuery);
-    setSearchText('');
+    // setSearchText('');
   };
 
   const handleSearch = () => {};
