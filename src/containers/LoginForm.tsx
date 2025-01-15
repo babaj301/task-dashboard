@@ -23,7 +23,7 @@ const LoginForm = () => {
   const [verified, setVerified] = useState(false);
   const navigate = useNavigate();
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setEmail(e.target.value);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -38,7 +38,9 @@ const LoginForm = () => {
     }
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (
+    e
+  ) => {
     setPassword(e.target.value);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,12 +55,12 @@ const LoginForm = () => {
     }
   };
 
-  const changeEye = () => {
+  const changeEye: React.MouseEventHandler = () => {
     setIsEyeOpen(!isEyeOpen);
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -76,8 +78,10 @@ const LoginForm = () => {
       console.log('User Logged In:', user);
       toast.success(`Welcome back, ${user.email}!`);
       navigate('/todoApp');
-    } catch (error) {
-      console.error('Login Error:', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Login Error:', error.message);
+      }
       toast.error('Login failed. Check your email or password.');
     }
   };
@@ -89,8 +93,10 @@ const LoginForm = () => {
       console.log('Google Login Success:', user);
       toast.success(`Welcome ${user.displayName}!`);
       navigate('/todoApp');
-    } catch (error) {
-      console.error('Google Login Error:', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Google Login Error:', error.message);
+      }
       toast.error('Failed to log in with Google.');
     }
   };

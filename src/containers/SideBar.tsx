@@ -1,7 +1,13 @@
 import React from 'react';
 import Logo from '../assets/Logo.svg';
 
-const SideBar = ({ onTabChange, handleLogout, selectedTab }) => {
+interface SideBarProps {
+  onTabChange: (tab: string) => void;
+  handleLogout: () => void;
+  selectedTab: string;
+}
+
+const SideBar = ({ onTabChange, handleLogout, selectedTab }: SideBarProps) => {
   return (
     <div className="flex flex-col min-w-60  min-h-screen px-10 pt-10 border bg-white">
       {/* Logo section */}
