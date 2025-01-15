@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { db, auth } from '../firebase';
 import {
   addDoc,
@@ -50,7 +50,7 @@ const TodoApp = () => {
     }
   };
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     const user = auth.currentUser;
     if (user) {
       try {
@@ -98,52 +98,11 @@ const TodoApp = () => {
       console.log('No user logged in');
       setTasks([]);
     }
-  };
+  }, [selectedTab]);
 
   useEffect(() => {
     // Function to listen for changes and stops running when the component unmounts
     const handleStateListener = onAuthStateChanged(auth, async (user) => {
-      // if (user) {
-      //   try {
-      //     const userId = user.uid;
-      //     const taskRef = collection(db, 'users', userId, 'tasks');
-      //     const data = await getDocs(taskRef);
-      //     if (selectedTab === 'all') {
-      //       const tasks = data.docs.map((doc) => ({
-      //         id: doc.id,
-      //         ...doc.data(),
-      //       }));
-      //       setTasks(tasks);
-      //     }
-      //     // Sets the tasks for work
-      //     if (selectedTab === 'work') {
-      //       const tasks = data.docs.map((doc) => ({
-      //         id: doc.id,
-      //         ...doc.data(),
-      //       }));
-      //       const workTasks = tasks.filter((task) => task.category === 'work');
-      //       setTasks(workTasks);
-      //     }
-      //     //Set the tasks for personal
-      //     if (selectedTab === 'personal') {
-      //       const tasks = data.docs.map((doc) => ({
-      //         id: doc.id,
-      //         ...doc.data(),
-      //       }));
-      //       const personalTasks = tasks.filter(
-      //         (task) => task.category === 'personal'
-      //       );
-      //       setTasks(personalTasks);
-      //     }
-      //     setLoading(false);
-      //   } catch (error) {
-      //     console.error('Error fetching tasks: ', error);
-      //   }
-      // } else {
-      //   console.log('No user logged in');
-      //   setTasks([]);
-      // }
-
       fetchTasks();
     });
 
@@ -152,10 +111,8 @@ const TodoApp = () => {
 
   const searchInput = (e) => {
     const searchQuery = e.target.value;
-    // setSearchText(searchQuery);
 
     console.log(searchQuery);
-    // setSearchText('');
   };
 
   const handleSearch = () => {};

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import Header from '../components/Header';
-import RememberSection from '../components/RememberSection';
+import RememberSection from '../components/RememberSection.tsx';
 import Button from '../components/Button';
 import SlashIcon from '../assets/not-slashed.svg';
 import Eye from '../assets/eye.svg';
 import MessageIcon from '../assets/message.svg';
 import Google from '../assets/icons8-google.svg';
 import Twitter from '../assets/icons8-twitter.svg';
-import AccountSection from '../components/AccountSection';
+import AccountSection from '../components/AccountSection.tsx';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { auth, googleProvider } from '../firebase';

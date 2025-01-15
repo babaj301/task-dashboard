@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
 
+type Task = {
+  id?: number;
+  category: string;
+  completed: boolean;
+  content: string;
+  name: string;
+  title: string;
+};
+
+interface CompletedTaskProps {
+  task: Task;
+  onComplete: () => void;
+  revertComplete: () => void;
+}
+
 const CompletedTask = ({
   task,
 
   onComplete,
   revertComplete,
-}) => {
+}: CompletedTaskProps) => {
   const [isChecked, setIsChecked] = useState(task.completed);
 
-  const handleChange = (event) => {
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     if (!event.target.checked) {
       setIsChecked(event.target.checked);
       revertComplete();

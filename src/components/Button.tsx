@@ -1,4 +1,12 @@
-const Button = ({ onClick, text, logo }) => {
+import React from 'react';
+
+interface ButtonProps {
+  onClick: () => void;
+  text: string;
+  logo: string;
+}
+
+const Button = ({ onClick, text, logo }: ButtonProps) => {
   return (
     <div>
       <button

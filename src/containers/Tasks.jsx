@@ -1,5 +1,5 @@
 import CompletedTask from '../components/CompletedTask';
-import SingleTask from '../components/SingleTask';
+import SingleTask from '../components/SingleTask.tsx';
 import { auth } from '../firebase';
 const Tasks = ({
   tasks,
