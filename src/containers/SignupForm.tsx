@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import React from 'react';
 import Header from '../components/Header';
 import RememberSection from '../components/RememberSection';
 import Button from '../components/Button';
@@ -21,7 +22,7 @@ const LoginForm = () => {
   const [verified, setVerified] = useState(false);
   const navigate = useNavigate();
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,7 +37,7 @@ const LoginForm = () => {
     }
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -51,12 +52,12 @@ const LoginForm = () => {
     }
   };
 
-  const changeEye = () => {
+  const changeEye: React.MouseEventHandler = () => {
     setEye(!eye);
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     event.preventDefault();
@@ -82,11 +83,13 @@ const LoginForm = () => {
       console.log(user);
       toast.success(`Account created Successfully ${user.displayName}`);
       navigate('/todoApp');
-    } catch (error) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(errorCode, errorMessage);
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        const errorCode = error;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -99,8 +102,10 @@ const LoginForm = () => {
       console.log('Google Login Success:', user);
       toast.success(`Welcome ${user.displayName}!`);
       navigate('/todoApp');
-    } catch (error) {
-      console.error('Google Login Error:', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Google Login Error:', error.message);
+      }
       toast.error('Failed to log in with Google.');
     }
   };
