@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-type Task = {
-  id?: number;
+interface Task {
+  id?: string;
   category: string;
   completed: boolean;
   content: string;
-  name: string;
+  name?: string | null;
   title: string;
-};
+}
 
 interface SingleTaskProps {
   task: Task;

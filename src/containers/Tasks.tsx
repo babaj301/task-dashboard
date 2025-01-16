@@ -1,6 +1,53 @@
 import CompletedTask from '../components/CompletedTask';
-import SingleTask from '../components/SingleTask.tsx';
+import SingleTask from '../components/SingleTask';
 import { auth } from '../firebase';
+import React from 'react';
+
+interface Task {
+  id?: string;
+  category: string;
+  completed: boolean;
+  content: string;
+  name?: string | null;
+  title: string;
+}
+
+type newTask = {
+  content: string;
+  title: string;
+  completed: boolean;
+  category: string;
+};
+
+interface TasksProps {
+  tasks: Task[];
+  handleSearch: () => void;
+  isAddModalOpen: boolean;
+  setIsAddModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  newTask: Task;
+  setNewTask: React.Dispatch<React.SetStateAction<newTask>>;
+  addTask: (e: React.FormEvent) => Promise<void>;
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isDeleteModalOpen: boolean;
+  handleDelete: () => void;
+  handleDeleteClick: (task: Task) => void;
+  cancelDelete: () => void;
+  deletingTaskId: string | undefined;
+  loading: boolean;
+  saveEdit: () => void;
+  cancelEdit: () => void;
+  setNewTaskTitle: React.Dispatch<React.SetStateAction<string>>;
+  setNewTaskContent: React.Dispatch<React.SetStateAction<string>>;
+  editingTaskId: string | undefined;
+  newTaskTitle: string;
+  newTaskContent: string;
+  handleEditClick: (task: Task) => void;
+  handleComplete: (id: string) => void;
+  revertComplete: (id: string) => void;
+  completedTasks: Task[];
+  setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 const Tasks = ({
   tasks,
   handleSearch,
@@ -28,14 +75,41 @@ const Tasks = ({
   revertComplete,
   completedTasks,
   setIsDeleteModalOpen,
-}) => {
-  const handleInputChange = (e) => {
+}: TasksProps) => {
+  const handleSelectInputChange: React.ChangeEventHandler<HTMLSelectElement> = (
+    e
+  ) => {
+    // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
+    const { name, value } = e.target;
+    setNewTask((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
+    const { name, value } = e.target;
+    setNewTask((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTextAreaChange: React.ChangeEventHandler<HTMLTextAreaElement> = (
+    e
+  ) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
     const { name, value } = e.target;
     setNewTask((prev) => ({ ...prev, [name]: value }));
   };
 
   console.log(auth.currentUser);
+
+  const getUserDisplayText = () => {
+    const user = auth.currentUser;
+    if (user?.displayName) {
+      return `Hi, ${user.displayName.split(' ')[0]}`;
+    }
+    if (user?.email) {
+      return `Hi, ${user.email.split('.')[0]}`;
+    }
+    return 'Guest';
+  };
 
   return (
     // Uncompleted tasks
@@ -54,11 +128,7 @@ const Tasks = ({
           </button>
         </div>
         <div className="flex gap-4 items-center">
-          <p>
-            {auth.currentUser && auth.currentUser.displayName
-              ? `Hi, ${auth.currentUser.displayName.split(' ')[0]} `
-              : `${auth.currentUser.email.split('.')[0]}`}
-          </p>
+          <p>{getUserDisplayText()}</p>
           <img
             className="w-10 h-10 rounded-full"
             src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2"
@@ -114,7 +184,7 @@ const Tasks = ({
                 <textarea
                   name="content"
                   value={newTask.content}
-                  onChange={handleInputChange}
+                  onChange={handleTextAreaChange}
                   placeholder="Enter task description"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -126,7 +196,7 @@ const Tasks = ({
                 <select
                   name="category"
                   value={newTask.category}
-                  onChange={handleInputChange}
+                  onChange={handleSelectInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="work">Work</option>
@@ -252,7 +322,7 @@ const Tasks = ({
                   task={task}
                   onEdit={() => handleEditClick(task)}
                   onDelete={() => handleDeleteClick(task)}
-                  onComplete={() => handleComplete(task.id)}
+                  onComplete={() => handleComplete(task.id ?? '')}
                 />
               )}
             </div>
@@ -268,10 +338,10 @@ const Tasks = ({
                   return (
                     <CompletedTask
                       onComplete={() => {
-                        handleComplete(task.id);
+                        handleComplete(task.id ?? '');
                       }}
                       revertComplete={() => {
-                        revertComplete(task.id);
+                        revertComplete(task.id ?? '');
                       }}
                       key={task.id}
                       task={task}

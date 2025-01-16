@@ -1,0 +1,319 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { db, auth } from '../firebase';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  doc,
+} from 'firebase/firestore';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import SideBar from '../containers/SideBar';
+import Tasks from '../containers/Tasks';
+import { useNavigate } from 'react-router-dom';
+
+// All the states
+
+interface Task {
+  id?: string;
+  category: string;
+  completed: boolean;
+  content: string;
+  name?: string | null;
+  title: string;
+}
+
+const TodoApp = () => {
+  const [selectedTab, setSelectedTab] = useState<string>('all');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newTask, setNewTask] = useState({
+    content: '',
+    title: '',
+    completed: false,
+    category: 'work',
+  });
+
+  const [editingTaskId, setEditingTaskId] = useState<string | undefined>('');
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskContent, setNewTaskContent] = useState('');
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingTaskId, setDeletingTaskId] = useState<string | undefined>('');
+
+  const navigate = useNavigate();
+
+  const handleTabChange = (tab: string) => setSelectedTab(tab);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      console.log('User succesfully logged out');
+    } catch (error) {
+      console.log('Error logging out:', error);
+    }
+  };
+
+  const fetchTasks = useCallback(async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const userId = user.uid;
+        const taskRef = collection(db, 'users', userId, 'tasks');
+        const data = await getDocs(taskRef);
+
+        if (selectedTab === 'all') {
+          const tasks: Task[] = data.docs.map((doc) => ({
+            id: doc.id,
+            category: doc.data().category,
+            completed: doc.data().completed,
+            content: doc.data().content,
+            title: doc.data().title,
+          }));
+          setTasks(tasks);
+        }
+
+        // Sets the tasks for work
+        if (selectedTab === 'work') {
+          const tasks = data.docs.map((doc) => ({
+            id: doc.id,
+            category: doc.data().category,
+            completed: doc.data().completed,
+            content: doc.data().content,
+            title: doc.data().title,
+          }));
+
+          const workTasks = tasks.filter((task) => task.category === 'work');
+
+          workTasks ? setTasks(workTasks) : setTasks([]);
+        }
+
+        //Set the tasks for personal
+        if (selectedTab === 'personal') {
+          const tasks = data.docs.map((doc) => ({
+            id: doc.id,
+            category: doc.data().category,
+            completed: doc.data().completed,
+            content: doc.data().content,
+            title: doc.data().title,
+          }));
+          const personalTasks = tasks.filter(
+            (task) => task.category === 'personal'
+          );
+          personalTasks ? setTasks(personalTasks) : setTasks([]);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tasks: ', error);
+      }
+    } else {
+      console.log('No user logged in');
+      setTasks([]);
+    }
+  }, [selectedTab]);
+
+  useEffect(() => {
+    // Function to listen for changes and stops running when the component unmounts
+    const handleStateListener = onAuthStateChanged(auth, async (user) => {
+      fetchTasks();
+    });
+
+    return () => handleStateListener();
+  }, [selectedTab, fetchTasks]);
+
+  const searchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchQuery = e.target.value;
+
+    console.log(searchQuery);
+  };
+
+  const handleSearch = () => {};
+
+  // Adds a new task
+  const addTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+
+    if (user) {
+      try {
+        const userId = user.uid;
+        const taskData = {
+          name: user.displayName,
+          content: newTask.content,
+          title: newTask.title,
+          completed: false,
+          category: newTask.category,
+        };
+
+        const docRef = await addDoc(
+          collection(db, 'users', userId, 'tasks'),
+          taskData
+        );
+
+        setTasks((prev) => [...prev, { id: docRef.id, ...taskData }]);
+        setNewTask({
+          content: '',
+          title: '',
+          completed: false,
+          category: 'work',
+        });
+
+        setIsAddModalOpen(false);
+      } catch (error) {
+        console.error('Error adding task: ', error);
+      }
+    } else {
+      console.log('No user logged in');
+    }
+  };
+
+  // Deletes the task
+  const handleDeleteClick = (task: Task) => {
+    setIsDeleteModalOpen(true);
+    setDeletingTaskId(task.id);
+  };
+  const handleDelete = async () => {
+    const user = auth.currentUser;
+    const id = deletingTaskId;
+    if (user) {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', id ?? '');
+        await deleteDoc(taskRef);
+        // setTasks(tasks.filter((task) => task.id !== id));
+        fetchTasks();
+      } catch (error) {
+        console.error('Error deleting task: ', error);
+      } finally {
+        setIsDeleteModalOpen(false);
+        setDeletingTaskId('');
+      }
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeletingTaskId('');
+    setIsDeleteModalOpen(false);
+  };
+
+  // Handles what becomes the content of the edited task
+  const handleEditClick = (task: Task) => {
+    setEditingTaskId(task.id);
+    setNewTaskTitle(task.title);
+    setNewTaskContent(task.content);
+  };
+
+  // Save the edited task
+  const handleEditSave = async () => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.log('No user logged in');
+      return;
+    }
+
+    const id = editingTaskId;
+
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'tasks', id ?? ''), {
+        title: newTaskTitle,
+        content: newTaskContent,
+      });
+
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === editingTaskId
+            ? { ...task, title: newTaskTitle, content: newTaskContent }
+            : task
+        )
+      );
+      setEditingTaskId('');
+      setNewTaskTitle('');
+      setNewTaskContent('');
+    } catch (error) {
+      console.error('Error updating task: ', error);
+    }
+  };
+
+  // Cancel the edit
+  const cancelEdit = () => {
+    setEditingTaskId('');
+    setNewTaskContent('');
+    setNewTaskTitle('');
+  };
+
+  // Completes the task
+  const handleComplete = async (id: string) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+        await updateDoc(taskRef, { completed: true });
+        await fetchTasks();
+      } catch (error) {
+        console.error('Error editing task: ', error);
+      }
+    }
+  };
+  // Returns the tasks to incomplete
+  const revertComplete = async (id: string) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const taskRef = doc(db, 'users', user.uid, 'tasks', id);
+        await updateDoc(taskRef, { completed: false });
+        await fetchTasks();
+      } catch (error) {
+        console.error('Error editing task: ', error);
+      }
+    }
+  };
+
+  // Filtered tasks for completed
+  const completedTasks = tasks.filter((task) => task.completed);
+
+  return (
+    <div className="flex h-screen">
+      <SideBar
+        onTabChange={handleTabChange}
+        handleLogout={handleLogout}
+        selectedTab={selectedTab}
+      />
+      <Tasks
+        tasks={tasks}
+        onSearchChange={searchInput}
+        handleSearch={handleSearch}
+        isAddModalOpen={isAddModalOpen}
+        setIsAddModalOpen={setIsAddModalOpen}
+        newTask={newTask}
+        setNewTask={setNewTask}
+        addTask={addTask}
+        isDeleteModalOpen={isDeleteModalOpen}
+        handleDeleteClick={handleDeleteClick}
+        handleDelete={handleDelete}
+        cancelDelete={cancelDelete}
+        loading={loading}
+        saveEdit={handleEditSave}
+        cancelEdit={cancelEdit}
+        setNewTaskTitle={setNewTaskTitle}
+        setNewTaskContent={setNewTaskContent}
+        editingTaskId={editingTaskId}
+        newTaskTitle={newTaskTitle}
+        newTaskContent={newTaskContent}
+        handleEditClick={handleEditClick}
+        handleComplete={handleComplete}
+        revertComplete={revertComplete}
+        completedTasks={completedTasks}
+        deletingTaskId={deletingTaskId}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+      />
+    </div>
+  );
+};
+
+export default TodoApp;
