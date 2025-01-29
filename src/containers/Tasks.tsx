@@ -1,7 +1,7 @@
-import CompletedTask from '../components/CompletedTask';
-import SingleTask from '../components/SingleTask';
-import { auth } from '../firebase';
-import React from 'react';
+import CompletedTask from "../components/CompletedTask";
+import SingleTask from "../components/SingleTask";
+import { auth } from "../firebase";
+import React from "react";
 
 interface Task {
   id?: string;
@@ -81,13 +81,13 @@ const Tasks = ({
   ) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
     const { name, value } = e.target;
-    setNewTask((prev) => ({ ...prev, [name]: value }));
+    setNewTask({ ...newTask, [name]: value });
   };
 
   const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
     const { name, value } = e.target;
-    setNewTask((prev) => ({ ...prev, [name]: value }));
+    setNewTask({ ...newTask, [name]: value });
   };
 
   const handleTextAreaChange: React.ChangeEventHandler<HTMLTextAreaElement> = (
@@ -95,7 +95,7 @@ const Tasks = ({
   ) => {
     // Gets the name attribute and value attribute of the html element that triggered the event and destructure it.
     const { name, value } = e.target;
-    setNewTask((prev) => ({ ...prev, [name]: value }));
+    setNewTask({ ...newTask, [name]: value });
   };
 
   console.log(auth.currentUser);
@@ -103,12 +103,12 @@ const Tasks = ({
   const getUserDisplayText = () => {
     const user = auth.currentUser;
     if (user?.displayName) {
-      return `Hi, ${user.displayName.split(' ')[0]}`;
+      return `Hi, ${user.displayName.split(" ")[0]}`;
     }
     if (user?.email) {
-      return `Hi, ${user.email.split('.')[0]}`;
+      return `Hi, ${user.email.split(".")[0]}`;
     }
-    return 'Guest';
+    return "Guest";
   };
 
   return (
@@ -322,7 +322,7 @@ const Tasks = ({
                   task={task}
                   onEdit={() => handleEditClick(task)}
                   onDelete={() => handleDeleteClick(task)}
-                  onComplete={() => handleComplete(task.id ?? '')}
+                  onComplete={() => handleComplete(task.id ?? "")}
                 />
               )}
             </div>
@@ -338,17 +338,17 @@ const Tasks = ({
                   return (
                     <CompletedTask
                       onComplete={() => {
-                        handleComplete(task.id ?? '');
+                        handleComplete(task.id ?? "");
                       }}
                       revertComplete={() => {
-                        revertComplete(task.id ?? '');
+                        revertComplete(task.id ?? "");
                       }}
                       key={task.id}
                       task={task}
                     />
                   );
                 })
-              : 'No tasks completed'}
+              : "No tasks completed"}
           </div>
         </div>
       </div>
