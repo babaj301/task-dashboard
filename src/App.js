@@ -1,8 +1,8 @@
-import Login from './pages/Login';
-import SignUp from './pages/SignUp';
-import TodoApp from './pages/TodoApp';
-import { Routes, Route } from 'react-router-dom';
-import './index.css';
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import TodoApp from "./pages/TodoApp";
+import { Routes, Route } from "react-router-dom";
+import "./index.css";
 
 function App() {
   return (
